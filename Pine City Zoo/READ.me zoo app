@@ -1,0 +1,13 @@
+# Pine City Zoo 🐾
+
+Pine City Zoo is a beginner-friendly HTML and CSS project that showcases a virtual zoo experience. It was created as part of a web development learning journey.
+
+## 🌟 Features
+
+- Simple homepage (`index.html`) with navigation
+- Animal information pages like `animals.html` and `animals-elephants.html`
+- Clean and structured layout using custom CSS
+- Responsive design for better viewing on different devices
+
+## 📁 Project Structure
+
