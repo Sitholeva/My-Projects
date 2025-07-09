@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Add Contact</title>
+</head>
+<body>
+    <form id="editForm">
+        <label for="firstname">First name</label>
+        <input type="text" name="firstname" id="firstname"><br/>
+        <label for="lastname">Last name</label>
+        <input type="text" name="lastname" id="lastname"><br/>
+        <label for="mobile">Mobile</label>
+        <input type="text" name="mobile" id="mobile"><br/>
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email"><br/>
+        <label for="avatar">Select a file</label><br/>
+        <input type="file" name="avatar" id="avatar"><br/>
+        <button type="button" id="submitForm">submit</button> 
+    </form>
+    <br/>
+    <button id="homeLink" type="button">Home</button>
+
+    <script src="config.js"></script>
+    <script>
+        document.getElementById("submitForm").addEventListener('click', submitForm);
+        document.getElementById("homeLink").addEventListener('click', homeLink);
+
+        function submitForm() {
+            const firstname = document.getElementById("firstname").value.trim();
+            const lastname = document.getElementById("lastname").value.trim();
+            const mobile = document.getElementById("mobile").value.trim();
+            const email = document.getElementById("email").value.trim();
+
+            if (!firstname || !lastname || !mobile || !email) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const form = new FormData(document.getElementById('editForm'));
+            form.append('apikey', apikey);
+
+            const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+            const apiUrl = rootPath + 'controller/insert-contact/';
+
+            fetch(proxyUrl + apiUrl, {
+                method: 'POST',
+                body: form
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log("Server response:", data);
+
+                if (data == "1") {
+                    alert("Contact added.");
+                    homeLink();
+                } else {
+                    alert("Failed: " + data);
+                }
+            })
+            .catch(error => {
+                alert("Error: " + error);
+            });
+        }
+
+        function homeLink() {
+            window.open("index.html", "_self");
+        }
+    </script>
+</body>
+</html>

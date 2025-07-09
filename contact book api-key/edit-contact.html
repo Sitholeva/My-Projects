@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Edit Contact</title>
+</head>
+<body onload="getContacts()">
+    <div id="avatarImages"></div>
+    <form id="editForm">
+        <label for="firstname">First name</label>
+        <input type="text" name="firstname" id="firstname" readonly><br/>
+        <label for="lastname">Last name</label>
+        <input type="text" name="lastname" id="lastname" readonly><br/>
+        <label for="mobile">Mobile</label>
+        <input type="text" name="mobile" id="mobile" readonly><br/>
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email" readonly><br/>
+        <label for="avatar" id="avatarLabel" hidden>change profile image</label><br/>
+        <input type="file" name="avatar" id="avatar" hidden><br/>
+        <br/>
+        <button type="submit" id="submitForm" hidden>submit</button>
+    </form>
+    <br/><br/>
+    <button id="homeLink" type="button">Home</button>
+    <button id="editContact" type="button">Edit</button>
+    <button id="deletContact" type="button">Delete</button>
+
+    <script src="config.js"></script>
+    <script>
+        const id = getId();
+        const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+
+        document.getElementById("homeLink").addEventListener('click', homeLink);
+        document.getElementById("editContact").addEventListener('click', enableEdit);
+        document.getElementById("submitForm").addEventListener('click', submitForm);
+        document.getElementById("deletContact").addEventListener('click', deleteContact); 
+
+        function getId() {
+            const url = window.location.href;
+            const pos = url.indexOf("=");
+            return url.slice(pos + 1);
+        }
+
+        function getContacts() {
+            const apiUrl = rootPath + 'controller/get-contact/?id=' + id + '&apikey=' + apikey;
+
+            fetch(proxyUrl + apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        alert("Contact not found.");
+                        return;
+                    }
+                    displayOutput(data);
+                })
+                .catch(err => console.error("Fetch error:", err));
+        }
+
+        function displayOutput(data) {
+            const avatarImg = `
+                <img src="${rootPath}controller/uploads/${data[0].avatar}" width="200" />
+            `;
+            document.getElementById("avatarImages").innerHTML = avatarImg;
+            document.getElementById("firstname").value = data[0].firstname;
+            document.getElementById("lastname").value = data[0].lastname;
+            document.getElementById("mobile").value = data[0].mobile;
+            document.getElementById("email").value = data[0].email;
+        }
+
+        function enableEdit() {
+            document.getElementById("firstname").readOnly = false;
+            document.getElementById("lastname").readOnly = false;
+            document.getElementById("mobile").readOnly = false;
+            document.getElementById("email").readOnly = false;
+            document.getElementById("avatar").hidden = false;
+            document.getElementById("avatarLabel").hidden = false;
+            document.getElementById("submitForm").hidden = false;
+        }
+
+        function submitForm(e) {
+            e.preventDefault();
+
+            const form = new FormData(document.getElementById("editForm"));
+            form.append('apikey', apikey);
+            form.append('id', id);
+
+            const apiUrl = rootPath + 'controller/edit-contact/';
+
+            fetch(proxyUrl + apiUrl, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json, */*' },
+                body: form
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data === "1") {
+                    alert("Contact updated.");
+                    homeLink();
+                } else {
+                    alert("Update failed: " + data);
+                }
+            })
+            .catch(err => alert("Error: " + err));
+        }
+
+        function deleteContact() {
+            if (confirm("Delete contact. Are you sure?")) {
+                const apiUrl = rootPath + 'controller/delete-contact/?id=' + id + '&apikey=' + apikey;
+
+                fetch(proxyUrl + apiUrl)
+                    .then(response => response.text())
+                    .then(data => {
+                        if (data === "1") {
+                            alert("Contact deleted.");
+                            homeLink();
+                        } else {
+                            alert("Delete failed: " + data);
+                        }
+                    })
+                    .catch(err => alert("Error: " + err));
+            }
+        }
+
+        function homeLink() {
+            window.open("index.html", "_self");
+        }
+    </script>
+</body>
+</html>
+
